@@ -155,7 +155,26 @@ class build_transformer(nn.Module):
             otherbranch_ = torch.mean(torch.stack(split_list[1:], dim=2), dim=-1)
             return part_featuers_, otherbranch_
         return part_featuers_
+    def get_heartmap_pool_mo(self, part_features, add_global=False, otherbranch=False):
+        heatmap = torch.mean(part_features, dim=-1)
+        size = part_features.size(1)
 
+        _, indices = torch.sort(heatmap, descending=True)
+
+        split_point = int(0.75 * size)  # 将前25%和后75%分开的位置
+
+        block1_indices = indices[:, :split_point]
+        block2_indices = indices[:, split_point:]
+
+        block1_features = torch.gather(part_features, 1, block1_indices.unsqueeze(2).expand(-1, -1, part_features.size(2)))
+        block2_features = torch.gather(part_features, 1, block2_indices.unsqueeze(2).expand(-1, -1, part_features.size(2)))
+
+        block1_mean = torch.mean(block1_features, dim=1)
+        block2_mean = torch.mean(block2_features, dim=1)
+
+        part_features_ = torch.stack([block1_mean, block2_mean], dim=2)
+
+        return part_features_
     def part_classifier(self,block, x, cls_name='classifier_lpn'):
         part = {}
         predict = {}

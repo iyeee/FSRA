@@ -11,7 +11,7 @@ import matplotlib.pyplot as plt
 # Evaluate
 parser = argparse.ArgumentParser(description='Demo')
 parser.add_argument('--query_index', default=0, type=int, help='test_image_index')
-parser.add_argument('--test_dir',default='./data/test',type=str, help='./test_data')
+parser.add_argument('--test_dir',default='/data/modanqi/projects/University1652-Baseline/data/test',type=str, help='./test_data')
 opts = parser.parse_args()
 
 

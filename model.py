@@ -1,7 +1,7 @@
 from kiwisolver import Variable
 import torch
 import torch.nn as nn
-from .FSRA import make_transformer_model
+from models.FSRA import make_transformer_model
 from thop import profile
 
 class two_view_net(nn.Module):
@@ -83,7 +83,7 @@ if __name__ == '__main__':
     net = two_view_net(class_num=751,block=3)
     net.cuda()
 
-    input1 = Variable(torch.FloatTensor(8, 3, 256, 256)).cuda()
+    input1 =torch.FloatTensor(8, 3, 256, 256).cuda()
     output1,output1 =net(input1,input1)
     # print(output1)
 

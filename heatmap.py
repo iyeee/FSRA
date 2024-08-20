@@ -15,23 +15,23 @@ os.environ["CUDA_VISIBLE_DEVICES"] = '0'
 parser = argparse.ArgumentParser(description='Training')
 import math
 
-parser.add_argument('--data_dir',default='/home/dmmm/University-Release/test',type=str, help='./test_data')
-parser.add_argument('--name', default='from_transreid_256_4B_small_lr005_kl', type=str, help='save model path')
+parser.add_argument('--data_dir',default='/data/modanqi/datasets/data/test',type=str, help='./test_data')
+parser.add_argument('--name', default='/data/modanqi/projects/new/FSRA/checkpoints/FSRA', type=str, help='save model path')
 parser.add_argument('--batchsize', default=1, type=int, help='batchsize')
-parser.add_argument('--checkpoint',default="net_119.pth", help='weights' )
+parser.add_argument('--checkpoint',default="/data/modanqi/projects/new/FSRA/checkpoints/FSRA/net_119.pth", help='weights' )
 opt = parser.parse_args()
 
 config_path = 'opts.yaml'
 with open(config_path, 'r') as stream:
-    config = yaml.load(stream)
-opt.stride = config['stride']
+    config = yaml.load(stream,Loader=yaml.FullLoader)
+# opt.stride = config['stride']
 opt.views = config['views']
-opt.transformer = config['transformer']
-opt.pool = config['pool']
-opt.LPN = config['LPN']
+# opt.transformer = config['transformer']
+# opt.pool = config['pool']
+# opt.LPN = config['LPN']
 opt.block = config['block']
 opt.nclasses = config['nclasses']
-opt.droprate = config['droprate']
+# opt.droprate = config['droprate']
 opt.share = config['share']
 
 if 'h' in config:
@@ -83,19 +83,19 @@ for i in ["0009","0013","0015","0016","0018","0035","0039","0116","0130"]:
     model = model.eval().cuda()
 
     with torch.no_grad():
-        # x = model.model_3.model.conv1(img.cuda())
-        # x = model.model_3.model.bn1(x)
-        # x = model.model_3.model.relu(x)
-        # x = model.model_3.model.maxpool(x)
-        # x = model.model_3.model.layer1(x)
-        # x = model.model_3.model.layer2(x)
-        # x = model.model_3.model.layer3(x)
-        # output = model.model_3.model.layer4(x)
-        features,_ = model.model_1.transformer(img.cuda())
-        pos_embed = model.model_1.transformer.pos_embed
-        part_features = features[:,1:]
-        part_features = part_features.view(part_features.size(0),int(math.sqrt(part_features.size(1))),int(math.sqrt(part_features.size(1))),part_features.size(2))
-        output = part_features.permute(0,3,1,2)
+        x = model.model_3.model.conv1(img.cuda())
+        x = model.model_3.model.bn1(x)
+        x = model.model_3.model.relu(x)
+        x = model.model_3.model.maxpool(x)
+        x = model.model_3.model.layer1(x)
+        x = model.model_3.model.layer2(x)
+        x = model.model_3.model.layer3(x)
+        output = model.model_3.model.layer4(x)
+        # features,_ = model.model_1.transformer(img.cuda())
+        # pos_embed = model.model_1.transformer.pos_embed
+        # part_features = features[:,1:]
+        # part_features = part_features.view(part_features.size(0),int(math.sqrt(part_features.size(1))),int(math.sqrt(part_features.size(1))),part_features.size(2))
+        # output = part_features.permute(0,3,1,2)
 
     heatmap = output.squeeze().sum(dim=0).cpu().numpy()
     # print(heatmap.shape)
@@ -110,5 +110,5 @@ for i in ["0009","0013","0015","0016","0018","0035","0039","0116","0130"]:
     heatmap = cv2.applyColorMap(heatmap, 2)  # 将热力图应用于原始图像model.py
     superimposed_img = heatmap * 0.8 + img  # 这里的0.4是热力图强度因子
     if not os.path.exists("heatout"):
-        os.mkdir("./heatout")
-    cv2.imwrite("./heatout/"+i+".jpg", superimposed_img)
+        os.mkdir("./heatout/s")
+    cv2.imwrite("./heatout/s"+i+".jpg", superimposed_img)
